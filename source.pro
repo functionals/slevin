@@ -2,8 +2,8 @@
 :-op(1190,xfx,:-).
 :-op(1000,xfy,-:-).
 :-op(100,xfy,and).
-:-assert(passW).
-:-assert(passW(_)).
+:-assert(pass).
+:-assert(pass(_)).
 
 
 
@@ -24,7 +24,6 @@ start:-
 input(sentence):-[_].
 input(_):-unknown(input(_)).
 input(_):-(sound).
-input(_):-(vision).
 input(_):-(text).
 input(stream_input):-idea.
 input(sound):-([_];[_]).
@@ -37,9 +36,7 @@ input((_)|P):-output(P).
 input((X,Y,Z)|P):-input(((X,Y,Z)|P)|smart:output).
 input(Sound|(Question;Command)):-meaning(Sound|(Question;Command)).
 input(X,Y,Z):-unknown(X,Y,Z).
-input(Vision,Sound,Text):-(stream_input:(Vision,Sound,Text)).
-input(Vision,Sound,Text):-(stream_input:(Vision,Sound,Text)).
-input(X,Y,Z|P):-(parse:(output(define(X,Y,Z)))),display(P).
+input(X,Y,Z):-(parse:(output(define(X,Y,Z)))).
 input(X,Y,Z):-meaning(X,Y,Z).
 input(X,Y,(_)):-smart:output(X,Y|(_)).
 input(sound)-->[_];[_].
@@ -292,30 +289,31 @@ f( l(_,F/_),F).
 f( t(_,F/_,_),F).
 h(N,H):-N,H.
 s(N,M,C):-N,M,C.
-~(passW):-not(passW).
-~(rationalize(Prime)):-(~(passW)),Prime.
+
+~(rationalize(Prime)):-(~(pass)),Prime.
 ~(rational(Prime)):-Prime.
-~(passW):-set_random(number).
+~(pass):-set_random(number).
 ~(P):-!,(fail),not(P);true.
 ~(_):-not(_).
-~(passW):-not(passW).
+~(pass):-not(pass).
+
 
 random(Prime):-(~(number(Prime))).
 random(Prime):-lattice:node(Prime).
 random(_):-lattice:matrix(set(_)).
-random(X):-(~(password),~(passW))->lattice:matrix(X).
+random(X):-(~(pass(_)),~(pass))->lattice:matrix(X).
 random(X):- X is random(1000000).
 
 
 
 
 
-passW:-
+pass:-
 	[Prime1,Prime2,Prime3],
 	lattice:node(Prime1,Prime2,Prime3),
 	source_file_chain(lattice:bagof(_)).
-passW(Ch):-passW,source_file_chain(Ch),lattice:bagof(Ch).
-passW:start:-passW.
+pass(Ch):-pass,source_file_chain(Ch),lattice:bagof(Ch).
+pass:start:-pass.
 
 
 
@@ -410,14 +408,14 @@ lattice:expand(P,l(N,_),_,_,yes,[N|P]):-lattice:goal(N).
 
 lattice:matrix(node(A,B,C)):-lattice:node(d(_)),A,B,C.
 lattice:matrix(Close):-set_random(number(Close)).
-lattice:matrix(((Number))):-passW,password,lattice:node(Number).
+lattice:matrix(((Number))):-pass,pass(_),lattice:node(Number).
 lattice:matrix(X):-random(X).
 lattice:matrix(_):- else.
 lattice:matrix((set_random(Number))):-lattice:edges(3)->random(Number).
 lattice:matrix((Number)):-(lattice:node(3)->lattice:node(Number)).
 lattice:matrix((Prime)):-number(Prime).
-lattice:matrix(~(passW)):-[_].
-lattice:matrix(passW):-passW.
+lattice:matrix(~(pass)):-[_].
+lattice:matrix(pass):-pass.
 
 
 lattice:matrix(Line,Node,Distance):-lattice:edge(Line);Node,Distance.
@@ -431,12 +429,11 @@ lattice:matrix(Prime1,Prime2,Prime3):-lattice:node(Prime1,Prime2,Prime3).
 
 lattice:edge([A,B,C]):-lattice:matrix(Node1,Node2,Node3),(A;Node1, B;Node2,C;Node3).
 lattice:edge(Distance):-lattice:matrix(node(1),node(2),node(3)),Distance.
-lattice:edge([a]):-
-	lattice:node(number(Prime),
+lattice:edge(lattice:node(Prime1)):-
+	lattice:node(number(_),
 		     [Prime1,Prime2],
-		     lattice:edge([c])),
-	Prime1,Prime2,Prime;
-	Prime.
+		     lattice:edge([Prime2])),
+	Prime1,Prime2.
 lattice:edge([b]):-lattice:node(number(_)).
 lattice:edge([a]):-lattice:node(number(Prime)),([Prime]).
 lattice:edge([b]):-lattice:node(number(Prime)),([Prime]).
@@ -468,10 +465,9 @@ lattice:node(X,Y,Z):-node(X,Y,Z).
 lattice:node(Prime1,Prime2,Prime3):-lattice:edge(Prime1,Prime2,Prime3).
 lattice:node(A,B,C):-(lattice:edge(A,B,C)).
 lattice:node(X,Y,Z):-node(X,Y,Z)->lattice:node((1/X,X,(_))).
-lattice:node(Prime1,Prime2,Prime3):-number(Prime1;Prime2;Prime3),(password).
-lattice:node(Prime1,Prime2,Prime3):-node(Prime1,Prime2,Prime3).
-lattice:node(Prime1,Prime2,Prime3):-set_random(passW),passW->[Prime1,Prime2,Prime3].
-lattice:node(Triple_prime,Triple_prime,Triple_prime):-set_random(passW),passW->number(Triple_prime).
+
+lattice:node(Prime1,Prime2,Prime3):-set_random(pass),pass->[Prime1,Prime2,Prime3].
+lattice:node(Triple_prime,Triple_prime,Triple_prime):-set_random(pass),pass->number(Triple_prime).
 lattice:node(Prime1,Prime2,Prime3):-lattice:number(Prime1,Prime2,Prime3).
 lattice:node(Prime1,Prime2,Prime3):-lattice:distance(Prime1,Prime2,Prime3).
 lattice:node(X,Y,Z,Q):-node(Prime1,Prime2,Prime3)->(X;Prime1),(Y;Prime2),(Z;Prime3);Q.
@@ -495,7 +491,7 @@ lattice:min(Bound,BF,Bound1):-lattice:min(Bound,BF,Bound1).
 
 
 
-'$dde_connect'(lattice:matrix):-handle_request(passW).
+'$dde_connect'(lattice:matrix):-handle_request(pass).
 '$dde_connect'(lattice:matrix):- if(current_predicate(open_dde_conversation/3)).
 
 :- module(emacs_dde_server).
@@ -503,7 +499,7 @@ lattice:min(Bound,BF,Bound1):-lattice:min(Bound,BF,Bound1).
 :- use_module(library(pce)).
 
 
-handle_request(passW):-'$dde_connect'(lattice:matrix),(lattice:node(_,_,_),(lattice:edge(3))).
+handle_request(pass):-'$dde_connect'(lattice:matrix),(lattice:node(_,_,_),(lattice:edge(3))).
 handle_request(Item) :-
 	atom_concat('edit ', WinFile, Item), !,
 	prolog_to_os_filename(File, WinFile),
@@ -520,7 +516,7 @@ handle_request('close-server') :-
 	dde_unregister_service('PceEmacs'),
 	send(@emacs, report, status, 'Closed DDE server').
 handle_request(Item) :-
-	format(user_error, 'PceEmacs DDE server: unknown request: ~passW', [Item]),
+	format(user_error, 'PceEmacs DDE server: unknown request: ~pass', [Item]),
 	fail.
 
 
@@ -528,7 +524,7 @@ source_file_chain(Ch) :-
 	new(Ch, chain),
 	forall(user_source_file(X), send(Ch, append, X)),
 	send(Ch, sort).
-source_file_chain(Ch):-passW(Ch),passW.
+source_file_chain(Ch):-pass(Ch),pass.
 
 
 user_source_file(F) :-
@@ -562,7 +558,7 @@ expand_path(Term, D) :-
 :- endif.
 
 node(X,Y,Z)-:-(Number1;Number2;Number3):-lattice:node(Number1,Number2,Number3);(X,Y,Z).
-lattice:matrix(passW)-:-lattice:bestf(_,_).
+lattice:matrix(pass)-:-lattice:bestf(_,_).
 lattice:expand(P,l(N,F/G),Bound,Tree1,Solved,Sol)
       -:-Member,Solved=Never
       :-F=<Bound,(lattice:bagof(M/C),(s(N,M,C) ,

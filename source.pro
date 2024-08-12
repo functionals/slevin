@@ -5,8 +5,6 @@
 :-assert(pass).
 :-assert(pass(_)).
 
-
-
 start:-
 	!,input(A),
 	nl,
@@ -18,8 +16,6 @@ start:-
 	display(A),
 	nl,
 	write('learned').
-
-
 
 input(sentence):-[_].
 input(_):-unknown(input(_)).

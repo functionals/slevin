@@ -2,8 +2,22 @@
 :-op(1190,xfx,:-).
 :-op(1000,xfy,-:-).
 :-op(100,xfy,and).
+:-assert(passW).
+:-assert(passW(_)).
 
-start:-!,input(A), nl, write('Enter definition as predication:'),nl,read(A),assert(A),nl,display(A),nl,write('learned').
+
+
+start:-
+	!,input(A),
+	nl,
+	write('Enter definition as predication:'),
+	nl,
+	read(A),
+	assert(A),
+	nl,
+	display(A),
+	nl,
+	write('learned').
 
 
 
@@ -52,16 +66,18 @@ stream_input:-start.
 
 semantic_input:-(((X),(Y),(Z)),semantic_input(X,Y,Z|(_))).
 semantic_input:-goal((_),(_),(_)).
-semantic_input(sentence|(Sentence;Sentence_group)):-(Sentence;Sentence_group).
-semantic_input(Y|X;Z)-->((Y|X;Z),[sentence|sentence_group]).
 semantic_input:-process([_]).
 semantic_input:-sentence.
 semantic_input(Y|X;Z):-((X,Y,Z)|semantic_input(_)).
+semantic_input(sentence|(Sentence;Sentence_group))
+          :-(Sentence;Sentence_group).
+
+semantic_input(Y|X;Z)-->((Y|X;Z),[sentence,sentence_group]).
 
 
 unknown(_):-start.
 unknown(input(Vision,Sound,Text)):-input(unknown(Vision,Sound,Text)).
-unknown(X,Y,Z):-(define((X,Y,Z)|P);meaning((X,Y,Z)|P)).
+unknown(X,Y,Z):-define(X,Y,Z);meaning(X,Y,Z).
 unknown(X,Y,Z):-stream_input:(X,Y,Z).
 unknown(X,Y,Z):-input(X,Y,Z).
 
@@ -168,10 +184,7 @@ exists(noun_p,Assertion)-->verb_p(Assertion).
 
 
 
-object:-vision.
-object-->vision.
-vision-->object.
-vision:-object.
+
 sound:-input(_).
 text:-sentence(_).
 
@@ -198,8 +211,6 @@ meaning(X,Y,Z):-parse(X,Y,Z).
 meaning(X,Y,Z):-(parse:(definition(X,X,Y,Y,Z,Z))).
 meaning(X,Y,Z):-learn(meaning(X,Y,Z)).
 
-P-:-Q:-meaning(P,(Q)),(read(P),nl,write((Q)));(read(Q),nl,write((P))).
-P-:-Q:-copy_list(Q-:-P).
 
 
 copy_list([]-:-[]).
@@ -283,11 +294,11 @@ h(N,H):-N,H.
 s(N,M,C):-N,M,C.
 ~(passW):-not(passW).
 ~(rationalize(Prime)):-(~(passW)),Prime.
-~(rational(Prime)):-((Node)->Random_number),Prime.
+~(rational(Prime)):-Prime.
 ~(passW):-set_random(number).
 ~(P):-!,(fail),not(P);true.
 ~(_):-not(_).
-
+~(passW):-not(passW).
 
 random(Prime):-(~(number(Prime))).
 random(Prime):-lattice:node(Prime).
@@ -295,16 +306,16 @@ random(_):-lattice:matrix(set(_)).
 random(X):-(~(password),~(passW))->lattice:matrix(X).
 random(X):- X is random(1000000).
 
-password:-passW,(lattice:number((Prime1,Prime2,Prime3))),Prime1;Prime2;Prime3.
-password:-passW.
-password:-passW.
 
-:-passW,Prime1,Prime2,Prime3->call(lattice:node(Prime1,Prime2,Prime3)).
-:-passW(lattice:node(Prime1,Prime2,Prime3)),[Prime1,Prime2,Prime3].
-:-not(passW)->set_random(number).
-passW:-[Prime1,Prime2,Prime3],lattice:node(Prime1,Prime2,Prime3).
-passW(Ch):-passW,source_file_chain(Ch).
-passW:start.
+
+
+
+passW:-
+	[Prime1,Prime2,Prime3],
+	lattice:node(Prime1,Prime2,Prime3),
+	source_file_chain(lattice:bagof(_)).
+passW(Ch):-passW,source_file_chain(Ch),lattice:bagof(Ch).
+passW:start:-passW.
 
 
 
@@ -312,6 +323,7 @@ passW:start.
 
 lattice:bagof(M/C):-M,C.
 
+
 lattice:insert(T,Ts,[T|Ts]):-
 	f(T,F),lattice:bestf(Ts,Fl),
 	F=<Fl,!.
@@ -324,9 +336,8 @@ lattice:insert(T,[Tl|Ts],[Tl|Tsl]):-
 	lattice:insert(T,Ts,Tsl).
 
 
-
-lattice:continue(_, _, _, yes, yes, Sol,_).
-lattice:continue( P, t(N, F/G, [Tl|Ts]), Bound, Tree1, Solved, Sol,_):-
+lattice:continue(_, _, _, yes, yes, Sol,_):-f(Sol,yes).
+lattice:continue( P, t(N, F/G, [Tl|Ts]), Bound, Tree1, Solved, Sol,F):-
 	lattice:insert(Tl, Ts, NTs),
 	lattice:bestf(NTs,Fl),
 	lattice:expand(P, t(N, Fl/G, NTs), Bound, Tree1, Solved,Sol).
@@ -395,12 +406,7 @@ lattice:expand(P,t(N,F/G,[T|Ts]),Bound,Tree1,Solved,Sol):-F=<Bound,lattice:bestf
 lattice:expand(_,t(_,_,[]),_,_,never,_):-!.
 lattice:expand(_,Tree,Bound,Tree,no,_):-f(Tree,F),F>Bound.
 lattice:expand(P,l(N,_),_,_,yes,[N|P]):-lattice:goal(N).
-lattice:expand(P,l(N,F/G),Bound,Tree1,Solved,Sol),Member,Solved=Never:-F=<Bound,(lattice:bagof(M/C),(s(N,M,C) ,(~(Member)->[M,P],Succ)),!,lattice:succlist(G,Succ,Ts),lattice:bestf(Ts,Fl),lattice:expand(P,t(N,Fl/G,Ts),Bound,Tree1,Solved,Sol);Solved=Never).
 
-:-lattice:matrix(passW).
-:- if(current_predicate(shell_register_dde(_,_,_))).
-lattice:matrix(_):- else.
-:- endif.
 
 lattice:matrix(node(A,B,C)):-lattice:node(d(_)),A,B,C.
 lattice:matrix(Close):-set_random(number(Close)).
@@ -425,20 +431,23 @@ lattice:matrix(Prime1,Prime2,Prime3):-lattice:node(Prime1,Prime2,Prime3).
 
 lattice:edge([A,B,C]):-lattice:matrix(Node1,Node2,Node3),(A;Node1, B;Node2,C;Node3).
 lattice:edge(Distance):-lattice:matrix(node(1),node(2),node(3)),Distance.
-lattice:edge([a]):-lattice:node(number(Prime),[Prime1,Prime2],(lattice:edge([c]))),(Prime1,Prime2,Prime3);Prime.
+lattice:edge([a]):-
+	lattice:node(number(Prime),
+		     [Prime1,Prime2],
+		     lattice:edge([c])),
+	Prime1,Prime2,Prime;
+	Prime.
 lattice:edge([b]):-lattice:node(number(_)).
-lattice:edge([a]):-lattice:node(number(Prime1)),([Prime1,Prime2,Prime3]).
-lattice:edge([b]):-lattice:node(number(Prime2)),([Prime1,Prime2,Prime3]).
+lattice:edge([a]):-lattice:node(number(Prime)),([Prime]).
+lattice:edge([b]):-lattice:node(number(Prime)),([Prime]).
 lattice:edge([c]):-lattice:node(number(Prime3;Prime1;Prime2),[Prime1,Prime2,Prime3],([a],[c])).
 lattice:edge([Node1,Node2,Node3]):-lattice:matrix(Node1,Node2,Node3).
-lattice:edge([A,B];[B,C];[C,B]):-lattice:node(3),lattice:edge([A,B,C]),lattice:distance((lattice:node + lattice:edge = Distance)),lattice:matrix(Line,Node,Distance).
+lattice:edge([A,B];[B,C];[C,B]):-lattice:node(A;B;C),lattice:edge([Line,Node,Distance]),lattice:distance((lattice:node + lattice:edge = Distance)),lattice:matrix(Line,Node,Distance).
 lattice:edge(node):-lattice:matrix(node(1),node(2),node(3)).
 lattice:edge(Number):-random(Number).
 lattice:edge(Matrix;A,B,C):-lattice:matrix(Matrix;(A,B,C)).
 lattice:edge(A,B,C):-A,B,C.
 
-lattice:edge([c]);Distance,Prime1,Prime2,Prime3:-lattice:node(number(Distance),[Prime1,Prime2,Prime3],[a],[c]).
-lattice:edge([A,B];[B,C];[C,B]),Line,Node:-lattice:node(3),lattice:edge([A,B,C]),lattice:distance((lattice:node + lattice:edge = Distance)),lattice:matrix(Line,Node,Distance).
 
 
 
@@ -446,7 +455,7 @@ add_edges(X,Y,Z):-lattice:edge(X,Y,Z).
 
 node(X,Y,Z):-lattice:node(X,Y,Z|Prime1,Prime2,Prime3),(Prime1,Prime2,Prime3).
 node(X,Y,Z):-add_edges(X,Y,Z).
-node(X,Y,Z),(Number1;Number2;Number3):-lattice:node(Number1,Number2,Number3);(X,Y,Z).
+
 lattice:node(d([A+1=B])):-A,B.
 lattice:node(d([A+2=C])):-A,C.
 lattice:node(d([B+1=C])):-B,C.
@@ -454,6 +463,7 @@ lattice:node(d([A+1=B])):-A,B.
 lattice:node(d([A+2=C])):-A,C.
 lattice:node(d([B+1=C])):-B,C.
 lattice:node(d([A+B=C])):-A,B,C.
+lattice:node(Prime,X):- 0 is X mod X+1,not(Prime),!.
 lattice:node(X,Y,Z):-node(X,Y,Z).
 lattice:node(Prime1,Prime2,Prime3):-lattice:edge(Prime1,Prime2,Prime3).
 lattice:node(A,B,C):-(lattice:edge(A,B,C)).
@@ -471,23 +481,26 @@ lattice:node(X,Y,Z,A,_):-lattice:node(X,Y,Z,A).
 
 
 
-lattice:distance(Prime):-[(node(1),(Prime))]+[node(2),(Prime)]+[node(3),(Prime)]=lattice:node(1+2=2),lattice:node(2+3=2),lattice:node(1+3=4),lattice:edge(3).
-lattice:distance(Prime1,Prime2,Prime3):-[(node(1),(Prime1))]+[node(2),(Prime2)]+[node(3),(Prime3)]=lattice:node([a]+[b]=[c]),lattice:node(number),lattice:node(Prime),lattice:edge(Prime).
-lattice:distance(_,_,_):-lattice:distance(node).
+lattice:distance(Prime):-
+	[(node(1),(Prime))]+[node(2),(Prime)]+[node(3),(Prime)]
+	=lattice:node(1+2=2),lattice:node(2+3=2),lattice:node(1+3=4),lattice:edge(3).
+lattice:distance(Prime1,Prime2,Prime3):-
+	[(node(1),(Prime1))]+[node(2),(Prime2)]+[node(3),(Prime3)]
+	=lattice:node([a]+[b]=[c]),lattice:node(number),lattice:node(Prime),lattice:edge(Prime).
+
 
 
 lattice:min(Bound,BF,Bound1):-lattice:min(Bound,BF,Bound1).
-lattice:min(X,Y,Z),Bound,BF,Bound1:-lattice:min(Bound,BF,Bound1);(X,Y,Z).
+
 
 
 
 '$dde_connect'(lattice:matrix):-handle_request(passW).
+'$dde_connect'(lattice:matrix):- if(current_predicate(open_dde_conversation/3)).
 
 :- module(emacs_dde_server).
-:- module(   start_emacs_dde_server(_)).
 :- module(emacs_dde_server),module(win_register_emacs).
 :- use_module(library(pce)).
-:- if(current_predicate(open_dde_conversation/3)).
 
 
 handle_request(passW):-'$dde_connect'(lattice:matrix),(lattice:node(_,_,_),(lattice:edge(3))).
@@ -540,13 +553,27 @@ expand_path(Term, D) :-
 	atomic_list_concat([D1, /, Sub], D).
 
 
-:- pce_group(indent(_)).
 
-:- pce_global(@prolog_neck_regex,
-	      new(regex(':-|:->|:<-|-->'))).
 :- pce_global(@prolog_full_stop,
 	      new(regex('[^-#$&*+./:<=>?@\\\\^`~]\\.($|\\s)'))).
 :- pce_global(@prolog_decl_regex,
 	      new(regex('^:-\\s*[a-z_]+'))).
 :- if(current_predicate(shell_register_dde/1)).
 :- endif.
+
+node(X,Y,Z)-:-(Number1;Number2;Number3):-lattice:node(Number1,Number2,Number3);(X,Y,Z).
+lattice:matrix(passW)-:-lattice:bestf(_,_).
+lattice:expand(P,l(N,F/G),Bound,Tree1,Solved,Sol)
+      -:-Member,Solved=Never
+      :-F=<Bound,(lattice:bagof(M/C),(s(N,M,C) ,
+      (~(Member)->[M,P],Succ)),
+		  !,lattice:succlist(G,Succ,Ts),
+		  lattice:bestf(Ts,Fl),
+		  lattice:expand(P,t(N,Fl/G,Ts),
+				 Bound,Tree1,Solved,Sol);Solved=Never).
+lattice:min(X,Y,Z)-:-Bound,BF,Bound1:-lattice:min(Bound,BF,Bound1);(X,Y,Z).
+lattice:edge([c])-:-Distance,Prime1,Prime2,Prime3:-lattice:node(number(Distance),[Prime1,Prime2,Prime3],[a],[c]).
+lattice:edge([A,B];[B,C];[C,B])-:-Line,Node:-lattice:node(3),lattice:edge([A,B,C]),lattice:distance((lattice:node + lattice:edge = Distance)),lattice:matrix(Line,Node,Distance).
+P-:-Q:-meaning(P,(Q)),(read(P),nl,write((Q)));(read(Q),nl,write((P))).
+P-:-Q:-copy_list(Q-:-P).
+Prime-:-not(divisible(not(X),X),X+1):-Prime.
